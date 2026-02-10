@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IncidentController;
 
@@ -7,18 +8,16 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Minimal named login route to satisfy `auth` middleware redirects.
-Route::get('/login', function () {
-    return redirect('/');
-})->name('login');
-
-// Redirect legacy or mistyped /incidents/index to the canonical /incidents route.
-Route::redirect('/incidents/index', '/incidents');
-
-
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/incidents', [IncidentController::class, 'index'])->name('incidents.index');
-    Route::get('/incidents/create', [IncidentController::class, 'create'])->name('incidents.create');
-    Route::post('/incidents', [IncidentController::class, 'store'])->name('incidents.store');
-}); 
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::resource('incidents', IncidentController::class)->middleware('auth');
+
+require __DIR__.'/auth.php';

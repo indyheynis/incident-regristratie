@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Incident;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class IncidentController extends Controller
 {
     public function index()
     {
-        $incidents = Incident::where('user_id', Auth::id())->get();
+        $incidents = Incident::latest()->get();
+
         return view('incidents.index', compact('incidents'));
     }
 
@@ -31,10 +31,9 @@ class IncidentController extends Controller
         ]);
 
         if ($request->hasFile('attachment')) {
-            $data['attachment'] = $request->file('attachment')->store('attachments', 'public');
+            $data['attachment'] = $request->file('attachment')
+                ->store('attachments', 'public');
         }
-
-        $data['user_id'] = Auth::id();
 
         Incident::create($data);
 
